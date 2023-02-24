@@ -1,7 +1,16 @@
-import { collection, doc, setDoc, addDoc } from 'firebase/firestore/lite';
+import { collection, doc, setDoc, addDoc, deleteDoc } from 'firebase/firestore/lite';
 import { FirebaseDB } from '../../firebase/config';
-import { addNewEmptyNote, savingNewNote, setActiveNote, setNotes, setSaving, updateNote } from './';
-import { loadNotes } from '../../helpers';
+import {
+	addNewEmptyNote,
+	deleteNoteById,
+	savingNewNote,
+	setActiveNote,
+	setImageToActiveNote,
+	setNotes,
+	setSaving,
+	updateNote,
+} from './';
+import { fileUpload, loadNotes } from '../../helpers';
 
 export const startNewNote = () => {
 	return async (dispatch, getState) => {
@@ -13,6 +22,7 @@ export const startNewNote = () => {
 			title: '',
 			body: '',
 			date: new Date().getTime(),
+			imageUrls: [],
 		};
 
 		// Firebase method
@@ -45,7 +55,6 @@ export const startLoadingNotes = () => {
 
 export const startSaveNote = () => {
 	return async (dispatch, getState) => {
-
 		dispatch(setSaving());
 
 		const { uid } = getState().auth;
@@ -58,5 +67,36 @@ export const startSaveNote = () => {
 		await setDoc(docRef, noteToFireStore, { merge: true });
 
 		dispatch(updateNote(note));
+	};
+};
+
+export const startUploadingFiles = (files = []) => {
+	return async dispatch => {
+		dispatch(setSaving());
+
+		/* await fileUpload(files[0]); */
+
+		const fileUploadPromises = [];
+
+		for (const file of files) {
+			//No estamos disparando la promesa, no estamos usando el .then
+			//Solo estamos guardando la promesa en el array
+			fileUploadPromises.push(fileUpload(file));
+		}
+
+		const imageUrls = await Promise.all(fileUploadPromises);
+		dispatch(setImageToActiveNote(imageUrls));
+	};
+};
+
+export const startDeletingNote = () => {
+	return async (dispatch, getState) => {
+		const { uid } = getState().auth;
+		const { active: note } = getState().journal;
+
+		const docRef = doc(FirebaseDB, `${uid}/journal/notes/${note.id}`);
+		await deleteDoc(docRef);
+
+		dispatch(deleteNoteById(note.id));
 	};
 };
