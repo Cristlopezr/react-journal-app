@@ -6,7 +6,6 @@ import { AuthLayout } from '../layout/AuthLayout';
 import { useForm } from '../../hooks';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-	checkingAuthentication,
 	startGoogleSignIn,
 	startLoginWithEmailPassword,
 } from '../../store/auth';
@@ -42,7 +41,7 @@ export const LoginPage = () => {
 
 	return (
 		<AuthLayout title='Iniciar Sesión'>
-			<form onSubmit={onSubmit}>
+			<form onSubmit={onSubmit} aria-label='form'>
 				<Grid container>
 					<Grid item xs={12} sx={{ mt: 2 }}>
 						<TextField
@@ -60,6 +59,7 @@ export const LoginPage = () => {
 							label='Contraseña'
 							type='password'
 							placeholder='Contraseña'
+							inputProps={{ 'data-testid': 'password' }}
 							fullWidth
 							name='password'
 							value={password}
@@ -82,6 +82,7 @@ export const LoginPage = () => {
 								onClick={onGoogleSignIn}
 								variant='contained'
 								fullWidth
+								aria-label='google-btn'
 							>
 								<Google />
 								<Typography sx={{ ml: 1 }}>Google</Typography>
