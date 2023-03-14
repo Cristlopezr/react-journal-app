@@ -1,6 +1,4 @@
-### Journal App
-
-### Curso React
+## Journal App
 
 ### - Material UI
 ### - Firebase
